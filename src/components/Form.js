@@ -17,8 +17,7 @@ export const Form = () => {
 			}).
 			catch(() => {
 				alert.show('Something wrong!', 'danger')
-			})
-			
+			})			
 			setValue('')
 		} else {
 			alert.show('Enter note title!')
@@ -32,7 +31,7 @@ export const Form = () => {
 				<input
 					type="text" 
 					className="form-control"
-					placeholder="Enter title note"
+					placeholder="Enter title"
 					value={value}
 					onChange={e => setValue(e.target.value)}
 				/>
