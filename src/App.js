@@ -1,27 +1,19 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { Home } from './pages/Home'
-import { About } from './pages/About'
-import { Navbar } from './components/Navbar';
-import { Alert } from './components/Alert';
 import { AlertState } from './context/alert/AlertState';
 import { FirebaseState } from './context/firebase/FirebaseState';
+import { AuthState } from './context/auth/AuthState';
+import { Main } from './components/Main';
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js";
 
 function App() {
   return (
-		<FirebaseState>
-			<AlertState>
-				<BrowserRouter>
-					<Navbar />	
-					<div className="container pt-4">
-						<Alert />
-						<Routes>
-							<Route path='/' exact element={<Home />}/>
-							<Route path='/about' element={<About />}/>
-						</Routes>
-					</div>
-				</BrowserRouter>
-			</AlertState>
-		</FirebaseState>
+		<AuthState>
+			<FirebaseState>
+				<AlertState>
+					<Main />
+				</AlertState>
+			</FirebaseState>
+		</AuthState>
   );
 }
 

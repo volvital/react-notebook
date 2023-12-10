@@ -1,14 +1,16 @@
 import { useReducer } from "react"
 import axios from "axios"
+import bcrypt from "bcryptjs"
 import { FirebaseContext } from "./firebaseContext"
 import { firebaseReducer } from "./firebaseReducer"
-import { ADD_NOTE, FETCH_NOTES, REMOVE_NOTE, SHOW_LOADER } from "../types"
+import { ADD_NOTE, ADD_USER, FETCH_NOTES, REMOVE_NOTE, SHOW_LOADER, FETCH_USERS } from "../types"
 
 const url = process.env.REACT_APP_DB_URL
 
 export const FirebaseState = ({children}) => {
 	const initialState = {
 		notes: [],
+		users: [],
 		loading: false
 	}
 	const [state, dispatch] = useReducer(firebaseReducer, initialState)
@@ -30,10 +32,14 @@ export const FirebaseState = ({children}) => {
 		}
 	}
 
-	const addNote = async title => {
+	const addNote = async (title, id) => {
+		const dateNow = new Date().toString()
+		let date = dateNow.split(' ').slice(0,5).join(' ')
+
 		const note = {
 			title,
-			date: new Date().toJSON()
+			owner: id,
+			date
 		}
 		try {
 			const res = await axios.post(`${url}/notes.json`, note)
@@ -45,7 +51,40 @@ export const FirebaseState = ({children}) => {
 		} catch (e) {
 			throw new Error(e.message)
 		}
-		
+	}
+
+	const fetchUsers = async () => {
+		try {
+			showLoader()
+			const res = await axios.get(`${url}/users.json`)
+			const payload = Object.keys(res.data || {}).map(key => {
+				return {
+					...res.data[key],
+					id: key
+				}
+			})
+			dispatch({type: FETCH_USERS, payload})
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
+	const addUser = async (email, password) => {
+		const hashedPassword = await bcrypt.hash(password, 12)
+		const user = {
+			email,
+			password: hashedPassword
+		}
+		try {
+			const res = await axios.post(`${url}/users.json`, user)
+			const payload = {
+				...user,
+				id: res.data.name
+			}
+			dispatch({type: ADD_USER, payload})
+		} catch (e) {
+			throw new Error(e.message)
+		}
 	}
 
 	const removeNote = async id => {
@@ -58,9 +97,10 @@ export const FirebaseState = ({children}) => {
 
 	return (
 		<FirebaseContext.Provider value={{
-			fetchNotes, addNote, showLoader, removeNote,
+			fetchNotes, addNote, showLoader, removeNote, addUser, fetchUsers,
 			loading: state.loading,
-			notes: state.notes
+			notes: state.notes,
+			users: state.users
 		}}>
 			{children}
 		</FirebaseContext.Provider>

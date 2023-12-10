@@ -1,23 +1,24 @@
 import { Fragment, useContext, useEffect } from "react";
-import { Form } from "../components/Form";
 import { Loader } from "../components/Loader";
-import { Notes } from "../components/Notes";
+import { NotesList } from "../components/NotesList";
+import { AuthContext } from "../context/auth/authContext";
 import { FirebaseContext } from "../context/firebase/firebaseContext";
 
-export const Home = () => {
+export const Notes = () => {
+	const { userId } = useContext(AuthContext)
 	const { loading, notes, fetchNotes, removeNote } = useContext(FirebaseContext)
-	
+	let userNotes = notes.filter(item => item.owner === userId)
 	useEffect(() => {
 		fetchNotes()
 		// eslint-disable-next-line
 	}, []) 
 	return (
 		<Fragment>
-			<Form />
+			<h1 className="text-center">Notes</h1>
 			<br />
 			{ loading
 			 ? <Loader />
-			 : <Notes notes={notes} onRemove={removeNote} />
+			 : <NotesList notes={userNotes} onRemove={removeNote} />
 			}
 		</Fragment>
 	)
